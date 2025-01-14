@@ -1,7 +1,7 @@
 #ifndef _LOGE_H_
 #define _LOGE_H_
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include <vector>
 #include <set>
 #include <thread>
@@ -80,7 +80,7 @@ std::vector<matches<T>> LOGE<T>::getLOGEMatches(const std::vector<T>& _data_list
     {
         thread_list.emplace_back(std::thread(this->getAdjWeightedMatrix, clique_set, origin_matches, std::ref(adj_matrix_with_weight)));
     }
-    for (const auto& thread : thread_list)
+    for (auto& thread : thread_list)
     {
         thread.join();
     }
@@ -134,7 +134,7 @@ Eigen::MatrixXf LOGE<T>::getAdjMatrix(const matches<T>& _matches)
 template <typename T>
 void LOGE<T>::getAdjWeightedMatrix(const std::set<int>& _clique, const matches<T>& _origin_matches, Eigen::MatrixXf& _adj_matrix_with_weight)
 {
-    int c_size = clique.size();
+    int c_size = _clique.size();
     int match_num = 0;
 
     Eigen::MatrixXf sub_adj_matrix = Eigen::MatrixXf::Zero(c_size, c_size);
@@ -177,7 +177,7 @@ std::vector<std::set<int>> LOGE<T>::denoiseCliques(const std::vector<std::set<in
     std::vector<std::set<int>> clique_denoised;
     for (const auto& clique : _C3_list_with_noise)
     {
-        if (sub_clique.size() < 2) { continue; }
+        if (clique.size() < 2) { continue; }
 
         std::vector<int> num_list;
         int den = 0;
@@ -192,7 +192,7 @@ std::vector<std::set<int>> LOGE<T>::denoiseCliques(const std::vector<std::set<in
             num_list.emplace_back(num);
         }
 
-        int n = sub_clique.size();
+        int n = clique.size();
         float th = noise_th_ / float((n / 2 - 1) + noise_th_);
         std::set<int> clique_af_p;
         if (n > 2)
@@ -225,7 +225,7 @@ Bone LOGE<T>::findBone(const std::vector<std::set<int>>& _C3_list_no_noise)
     Bone bone;
     for (int i = 0; i < _C3_list_no_noise.size(); i++)
     {
-        if (bone.data.empty())
+        if (bone.union_data.empty())
         {
             bone.union_data = _C3_list_no_noise[i];
             bone.bone_data = _C3_list_no_noise[i];
@@ -241,7 +241,7 @@ Bone LOGE<T>::findBone(const std::vector<std::set<int>>& _C3_list_no_noise)
                 bone.union_data = unionSets(bone.union_data, _C3_list_no_noise[i]);
                 bone.bone_data = inter_sec;
                 bone.c_index.insert(i);
-                bone.max_length = std::max(bone.max_length, _C3_list_no_noise[i].size());
+                bone.max_length = std::max(bone.max_length, int(_C3_list_no_noise[i].size()));
             }
         }
     }

@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "demo",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/LOGE", // 替换为实际路径
+            "args": [],
+            "cwd": "${workspaceFolder}/build",
+            "preLaunchTask": "build",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "MIMode": "gdb"
+        }
+    ]
+}
